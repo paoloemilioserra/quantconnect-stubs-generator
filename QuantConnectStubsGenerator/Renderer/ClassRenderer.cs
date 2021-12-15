@@ -21,7 +21,7 @@ namespace QuantConnectStubsGenerator.Renderer
 
         private void RenderClassHeader(Class cls)
         {
-            Write($"class {cls.Type.Name.Split(".").Last()}");
+            Write($"class {cls.Type.Name.Split(new string[] { "." }, System.StringSplitOptions.None).Last()}");
 
             var inherited = new List<string>();
 

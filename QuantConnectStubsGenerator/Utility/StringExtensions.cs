@@ -9,7 +9,7 @@ namespace QuantConnectStubsGenerator.Utility
             var indentation = new string(' ', level * 4);
 
             var lines = str
-                .Split("\n")
+                .Split(new string[] { "\n" }, System.StringSplitOptions.None)
                 .Select(line => indentation + line);
 
             return string.Join("\n", lines);

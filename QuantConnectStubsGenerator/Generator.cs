@@ -55,9 +55,7 @@ namespace QuantConnectStubsGenerator
                 .Where(file => !blacklistedPrefixes.Any(file.StartsWith))
                 .ToList();
 
-            // Find all relevant C# files in the C# runtime
-            foreach (var (relativePath, searchPattern) in new Dictionary<string, string>
-            {
+            var dict = new Dictionary<string, string>() {
                 { "src/libraries/System.Private.CoreLib/src", "*.cs" },
                 { "src/mono/System.Private.CoreLib/src", "*.Mono.cs" },
                 { "src/libraries/System.Drawing.Primitives/src", "*.cs" },
@@ -70,9 +68,14 @@ namespace QuantConnectStubsGenerator
                 { "src/libraries/System.Net.Primitives/src", "*.cs" },
                 { "src/libraries/System.Linq/src", "*.cs" },
                 { "src/libraries/System.Console/src", "*.cs" }
-            })
+            };
+
+            // Find all relevant C# files in the C# runtime
+            foreach (string relativePath in dict.Keys.ToList())
             {
-                var absolutePath = Path.GetFullPath(relativePath, _runtimePath);
+                string searchPattern = dict.Values.ToList().Find(x => x == relativePath);
+                // var absolutePath = Path.GetFullPath(relativePath, _runtimePath);
+                var absolutePath = Path.Combine(_runtimePath, relativePath);
                 var files = Directory
                     .EnumerateFiles(absolutePath, searchPattern, SearchOption.AllDirectories)
                     .ToList();
@@ -131,7 +134,8 @@ namespace QuantConnectStubsGenerator
             foreach (var ns in context.GetNamespaces())
             {
                 var namespacePath = ns.Name.Replace('.', '/');
-                var basePath = Path.GetFullPath($"{namespacePath}/__init__", _outputDirectory);
+                // var basePath = Path.GetFullPath($"{namespacePath}/__init__", _outputDirectory);
+                var basePath = Path.Combine(_outputDirectory, $"{namespacePath}/__init__");
 
                 RenderNamespace(ns, basePath + ".pyi");
                 GeneratePyLoader(ns.Name, basePath + ".py");
@@ -141,7 +145,7 @@ namespace QuantConnectStubsGenerator
             GenerateClrStubs();
 
             // Generate stubs for https://github.com/QuantConnect/Lean/blob/master/Common/AlgorithmImports.py
-            GenerateAlgorithmImports();
+            // GenerateAlgorithmImports();
 
             // Create setup.py
             GenerateSetup();
@@ -241,7 +245,8 @@ namespace QuantConnectStubsGenerator
             {
                 namespaceMapping[ns.Name] = true;
 
-                var parts = ns.Name.Split(".");
+                // var parts = ns.Name.Split(".", new StringSplitOptions());
+                var parts = ns.Name.Split(new string[] { "." }, StringSplitOptions.None);
 
                 for (var i = 1; i <= parts.Length; i++)
                 {
@@ -254,11 +259,12 @@ namespace QuantConnectStubsGenerator
                 }
             }
 
-            foreach (var (ns, exists) in namespaceMapping)
+            foreach (var n in namespaceMapping.Keys)
             {
+                bool exists = namespaceMapping[n];
                 if (!exists)
                 {
-                    context.RegisterNamespace(new Namespace(ns));
+                    context.RegisterNamespace(new Namespace(n));
                 }
             }
         }
@@ -273,54 +279,67 @@ namespace QuantConnectStubsGenerator
 
             EnsureParentDirectoriesExist(outputPath);
 
-            using var writer = new StreamWriter(outputPath);
-            var renderer = new NamespaceRenderer(writer, 0);
-            renderer.Render(ns);
+            using (var writer = new StreamWriter(outputPath))
+            {
+                var renderer = new NamespaceRenderer(writer, 0);
+                renderer.Render(ns);
+            }
         }
 
         private void GeneratePyLoader(string ns, string outputPath)
         {
             EnsureParentDirectoriesExist(outputPath);
 
-            using var writer = new StreamWriter(outputPath);
-            var renderer = new PyLoaderRenderer(writer);
-            renderer.Render(ns);
+            using (var writer = new StreamWriter(outputPath))
+            {
+                var renderer = new PyLoaderRenderer(writer);
+                renderer.Render(ns);
+            }
         }
 
         private void GenerateClrStubs()
         {
             Logger.Info("Generating clr stubs");
 
-            var outputPath = Path.GetFullPath("clr/__init__.pyi", _outputDirectory);
+            // var outputPath = Path.GetFullPath("clr/__init__.pyi", _outputDirectory);
+            var outputPath = Path.Combine(_outputDirectory, "clr/__init__.pyi");
             EnsureParentDirectoriesExist(outputPath);
 
-            using var writer = new StreamWriter(outputPath);
-            var renderer = new ClrStubsRenderer(writer);
-            renderer.Render();
+            using (var writer = new StreamWriter(outputPath))
+            {
+                var renderer = new ClrStubsRenderer(writer);
+                renderer.Render();
+            }
         }
 
-        private void GenerateAlgorithmImports()
-        {
-            Logger.Info("Generating AlgorithmImports stubs");
+        //private void GenerateAlgorithmImports()
+        //{
+        //    Logger.Info("Generating AlgorithmImports stubs");
 
-            var outputPath = Path.GetFullPath("AlgorithmImports/__init__.pyi", _outputDirectory);
-            EnsureParentDirectoriesExist(outputPath);
+        //    // var outputPath = Path.GetFullPath("AlgorithmImports/__init__.pyi", _outputDirectory);
+        //    var outputPath = Path.Combine(_outputDirectory, "AlgorithmImports/__init__.pyi");
+        //    EnsureParentDirectoriesExist(outputPath);
 
-            using var writer = new StreamWriter(outputPath);
-            var renderer = new AlgorithmImportsRenderer(writer, _leanPath);
-            renderer.Render();
-        }
+        //    using (var writer = new StreamWriter(outputPath))
+        //    {
+        //        var renderer = new AlgorithmImportsRenderer(writer, _leanPath);
+        //        renderer.Render();
+        //    }
+        //}
 
         private void GenerateSetup()
         {
             Logger.Info("Generating setup.py");
 
-            var setupPath = Path.GetFullPath("setup.py", _outputDirectory);
+            // var setupPath = Path.GetFullPath("setup.py", _outputDirectory);
+            var setupPath = Path.Combine(_outputDirectory, "setup.py");
             EnsureParentDirectoriesExist(setupPath);
 
-            using var writer = new StreamWriter(setupPath);
-            var renderer = new SetupRenderer(writer, _leanPath, _outputDirectory);
-            renderer.Render();
+            using (var writer = new StreamWriter(setupPath))
+            {
+                var renderer = new SetupRenderer(writer, _leanPath, _outputDirectory);
+                renderer.Render();
+            }
         }
 
         private void EnsureParentDirectoriesExist(string path)
@@ -331,7 +350,8 @@ namespace QuantConnectStubsGenerator
         private string FormatPath(string path)
         {
             var cwd = Directory.GetCurrentDirectory();
-            var resolvedPath = Path.GetFullPath(path, cwd);
+            // var resolvedPath = Path.GetFullPath(path, cwd);
+            var resolvedPath = Path.Combine(cwd, path);
 
             var normalizedPath = resolvedPath.Replace('\\', '/');
 

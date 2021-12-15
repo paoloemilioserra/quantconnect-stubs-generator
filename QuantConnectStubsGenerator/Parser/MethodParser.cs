@@ -203,7 +203,7 @@ namespace QuantConnectStubsGenerator.Parser
                     // Python.NET allows passing None to out parameters
                     parsedParameter.Type = new PythonType("Optional", "typing")
                     {
-                        TypeParameters = {actualType}
+                        TypeParameters = { actualType }
                     };
 
                     outTypes.Add(actualType);
@@ -336,14 +336,34 @@ namespace QuantConnectStubsGenerator.Parser
                 name = name.Substring(1);
             }
 
-            // Escape keywords
-            return name switch
+            string output = "";
+
+            switch (name)
             {
-                "from" => "_from",
-                "enum" => "_enum",
-                "lambda" => "_lambda",
-                _ => name
-            };
+                case "from":
+                    output = "_from";
+                    break;
+                case "enum":
+                    output = "_enum";
+                    break;
+                case "lambda":
+                    output = "_lambda";
+                    break;
+                default:
+                    output = name;
+                    break;
+            }
+
+            // Escape keywords
+            //return output; switch
+            //{
+            //    "from" => "_from",
+            //    "enum" => "_enum",
+            //    "lambda" => "_lambda",
+            //    _ => name
+            //};
+
+            return output;
         }
 
         private void ExtendIterableIfNecessary(MethodDeclarationSyntax node)

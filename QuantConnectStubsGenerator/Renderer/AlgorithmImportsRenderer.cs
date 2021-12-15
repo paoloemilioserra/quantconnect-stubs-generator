@@ -13,7 +13,8 @@ namespace QuantConnectStubsGenerator.Renderer
 
         public void Render()
         {
-            var algorithmImports = Path.GetFullPath("Common/AlgorithmImports.py", _leanPath);
+            // var algorithmImports = Path.GetFullPath("Common/AlgorithmImports.py", _leanPath);
+            var algorithmImports = Path.Combine(_leanPath, "Common/AlgorithmImports.py");
             WriteLine(File.ReadAllText(algorithmImports));
         }
     }

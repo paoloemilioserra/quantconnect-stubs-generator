@@ -84,7 +84,8 @@ setup(
             }
 
             const string defaultVersion = "1.0.0";
-            var tagsDirectory = new DirectoryInfo(Path.GetFullPath(".git/refs/tags", _leanPath));
+            // var tagsDirectory = new DirectoryInfo(Path.GetFullPath(".git/refs/tags", _leanPath));
+            var tagsDirectory = new DirectoryInfo(Path.Combine(_leanPath, ".git/refs/tags"));
 
             if (!tagsDirectory.Exists)
             {
@@ -124,7 +125,8 @@ setup(
 
         private string GetPythonPackageVersion(string package)
         {
-            var dockerFilePath = Path.GetFullPath("DockerfileLeanFoundation", _leanPath);
+            // var dockerFilePath = Path.GetFullPath("DockerfileLeanFoundation", _leanPath);
+            var dockerFilePath = Path.Combine(_leanPath, "DockerfileLeanFoundation");
             if (File.Exists(dockerFilePath))
             {
                 var dockerFileContents = File.ReadAllText(dockerFilePath);

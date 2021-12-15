@@ -65,7 +65,7 @@ namespace QuantConnectStubsGenerator.Renderer
             }
 
             var lines = value
-                .Split("\n")
+                .Split(new string[] { "\n" }, System.StringSplitOptions.None)
                 .Select(line => _indentation + line);
 
             return string.Join("\n", lines);

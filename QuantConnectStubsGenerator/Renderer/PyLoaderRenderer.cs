@@ -10,7 +10,7 @@ namespace QuantConnectStubsGenerator.Renderer
 
         public void Render(string ns)
         {
-            var baseNamespace = ns.Split(".")[0];
+            var baseNamespace = ns.Split(new string[] { "." }, System.StringSplitOptions.None)[0];
             var assembly = ns == "QuantConnect" ? "QuantConnect.Common" : ns;
 
             WriteLine($@"

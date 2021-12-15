@@ -27,7 +27,7 @@ namespace QuantConnectStubsGenerator.Parser
                 if (existingClass.Type.TypeParameters.Count >= cls.Type.TypeParameters.Count)
                 {
                     // Add documentation if the existing class has been registered without it and it is available here
-                    existingClass.Summary ??= cls.Summary;
+                    existingClass.Summary = cls.Summary;
 
                     _currentClass = existingClass;
                     return;
@@ -99,7 +99,8 @@ namespace QuantConnectStubsGenerator.Parser
 
                 if (!ShouldSkipBaseType(currentType, ns, name))
                 {
-                    types.Add(_typeConverter.GetType(symbol.BaseType));
+                    // types.Add(_typeConverter.GetType(symbol.BaseType));
+                    types.Add(_typeConverter.GetType(node));
                 }
             }
 

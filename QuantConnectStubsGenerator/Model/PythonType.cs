@@ -59,7 +59,7 @@ namespace QuantConnectStubsGenerator.Model
                 str += "[";
                 str += string.Join(
                     ", ",
-                    TypeParameters.SkipLast(1).Select(type => type.ToPythonString()));
+                    TypeParameters.Take(TypeParameters.Count - 1).Select(type => type.ToPythonString()));
                 str += "], ";
                 str += TypeParameters.Last().ToPythonString();
             }
@@ -90,9 +90,9 @@ namespace QuantConnectStubsGenerator.Model
             return obj.GetType() == GetType() && Equals((PythonType) obj);
         }
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Name, Namespace, Alias, IsNamedTypeParameter);
-        }
+        //public override int GetHashCode()
+        //{
+        //    return HashCode.Combine(Name, Namespace, Alias, IsNamedTypeParameter);
+        //}
     }
 }

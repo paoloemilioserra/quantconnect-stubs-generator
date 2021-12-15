@@ -157,7 +157,7 @@ namespace QuantConnectStubsGenerator.Parser
                 .GetLeadingTrivia()
                 .ToString()
                 .Trim()
-                .Split("\n")
+                .Split(new string[] { "\n" }, System.StringSplitOptions.None)
                 .Select(line => line.Trim())
                 .ToList();
 
